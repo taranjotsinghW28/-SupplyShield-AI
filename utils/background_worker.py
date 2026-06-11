@@ -444,26 +444,52 @@ Response guidelines:
         except Exception as e:
             return f"AI assistant temporarily unavailable. Error: {str(e)}"
     else:
-        supplier_record = db.suppliers.find_one({"name": target_supplier_name})
-        if not supplier_record:
-            return f"Supplier '{target_supplier_name}' not found in the database."
-            
-        extra_raw_fields = {
-            key: value for key, value in supplier_record.get("raw_columns", {}).items()
-            if key not in {
-                "name", "category", "country", "contact_email", "certifications",
-                "delivery_history", "overall_on_time_rate", "hazard_score", "risk_status",
-                "ai_risk_summary", "smart_mitigation_steps", "historical_timeline",
-                "last_checked", "processing_status", "stored_articles", "requires_ticket_approval",
-                "ticket_created", "ticket_reason", "_id"
-            }
-        }
-        extra_data_text = json.dumps(extra_raw_fields, default=str, ensure_ascii=False) if extra_raw_fields else "None"
+        # Support multiple supplier names (comma-separated) or "Multiple Suppliers" literal
+        names_list = [n.strip() for n in target_supplier_name.split(',') if n.strip() and n.strip() != "Multiple Suppliers"]
+        
+        if len(names_list) > 1:
+            # Multi-supplier: fetch all matching records
+            supplier_records = list(db.suppliers.find({"name": {"$in": names_list}}))
+            if not supplier_records:
+                supplier_records = list(db.suppliers.find({"risk_status": "High"}, {"name": 1, "category": 1, "country": 1, "hazard_score": 1, "risk_status": 1, "overall_on_time_rate": 1}))
+            for item in supplier_records:
+                item["_id"] = str(item["_id"])
+            context_stream = f"""You are SupplyShield-AI, a supply chain compliance analyst. You are analyzing multiple suppliers.
 
-        context_stream = f"""You are SupplyShield-AI, a supply chain compliance analyst. Answer questions about this specific supplier using ONLY the data provided below.
+## Supplier Profiles
+{json.dumps(supplier_records, default=str, indent=2)}
+
+## Response Guidelines
+- Be concise and reference specific supplier names and data points
+- Keep answers to 3-6 sentences
+- Do NOT fabricate any information"""
+        else:
+            # Single supplier lookup
+            single_name = names_list[0] if names_list else target_supplier_name
+            supplier_record = db.suppliers.find_one({"name": single_name})
+            if not supplier_record:
+                # Try case-insensitive
+                import re
+                supplier_record = db.suppliers.find_one({"name": re.compile(f'^{re.escape(single_name)}$', re.IGNORECASE)})
+            if not supplier_record:
+                return f"Supplier '{single_name}' not found in the database."
+
+            extra_raw_fields = {
+                key: value for key, value in supplier_record.get("raw_columns", {}).items()
+                if key not in {
+                    "name", "category", "country", "contact_email", "certifications",
+                    "delivery_history", "overall_on_time_rate", "hazard_score", "risk_status",
+                    "ai_risk_summary", "smart_mitigation_steps", "historical_timeline",
+                    "last_checked", "processing_status", "stored_articles", "requires_ticket_approval",
+                    "ticket_created", "ticket_reason", "_id"
+                }
+            }
+            extra_data_text = json.dumps(extra_raw_fields, default=str, ensure_ascii=False) if extra_raw_fields else "None"
+
+            context_stream = f"""You are SupplyShield-AI, a supply chain compliance analyst. Answer questions about this specific supplier using ONLY the data provided below.
 
 ## Supplier Profile
-- Name: {target_supplier_name}
+- Name: {single_name}
 - Category: {supplier_record.get('category', 'N/A')}
 - Country: {supplier_record.get('country', 'N/A')}
 - Hazard Score: {supplier_record.get('hazard_score', 0.0)}/100
