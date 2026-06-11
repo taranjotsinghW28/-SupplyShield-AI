@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Create Profile - SupplyShield-AI{% endblock %}
+
+{% block body_class %}landing-page{% endblock %}
+
+{% block content %}
+{% include "auth/_splash_animation.html" %}
+
+<div class="auth-page-wrap">
+    <div id="auth-form-wrapper" class="auth-tech-card split-auth-container" style="max-width: 900px;">
+        <!-- LEFT SIDE: AI Illustration Panel -->
+        <div class="auth-mascot-panel">
+            <div class="auth-bot-panel">
+                <div class="auth-bot-screen">
+                    <div class="bot-status">Hover to activate network</div>
+                    <div class="bot-ring ring-1"></div>
+                    <div class="bot-ring ring-2"></div>
+                    <div class="bot-ring ring-3"></div>
+                    <span class="bot-node node-a"></span>
+                    <span class="bot-node node-b"></span>
+                    <span class="bot-node node-c"></span>
+                </div>
+            </div>
+            <div class="mascot-slogan">AI-driven supply chain monitoring</div>
+        </div>
+        
+        <!-- RIGHT SIDE: Credentials Form Panel -->
+        <div class="auth-form-panel">
+            <div class="auth-top-badge">Start with secure onboarding</div>
+            <div class="auth-loading-overlay" id="auth-loading-overlay">
+                <div class="overlay-inner">
+                    <div class="loading-ring"></div>
+                    <div class="loading-text">Preparing your account…</div>
+                    <div class="loading-subtext">Saving your signup details and securing your access.</div>
+                </div>
+            </div>
+            <div class="auth-card-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <line x1="19" y1="8" x2="19" y2="14"/>
+                    <line x1="22" y1="11" x2="16" y2="11"/>
+                </svg>
+            </div>
+            <h2 class="text-center mb-2" style="font-weight: 800; letter-spacing: -0.5px; color: var(--text-primary);">Register Node</h2>
+            <p class="text-center mb-4" style="font-size: 0.9rem; color: var(--text-muted);">Deploy authentication signatures inside our verified ledger rooms.</p>
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="alert alert-info" style="font-size: 0.85rem; color: #ff6b6b; margin-bottom: 15px; text-align: center;">
+                  {{ messages[0] }}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <form id="register-form" method="POST" action="/auth/register">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">Choose Username ID</label>
+                    {{ form.username(class="form-control auth-form-input", placeholder="luffy530") }}
+                    {% if form.username.errors %}
+                        <div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.username.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">Corporate Email Address</label>
+                    {{ form.email(class="form-control auth-form-input", placeholder="manager@company.com") }}
+                    {% if form.email.errors %}
+                        <div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.email.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">Choose Secure Password</label>
+                    {{ form.password(class="form-control auth-form-input", type="password", placeholder="••••••••") }}
+                    {% if form.password.errors %}
+                        <div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.password.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">Choose Account Tier</label>
+                    <select name="tier" class="form-select auth-form-input">
+                        <option value="Free" selected>Free Tier - Basic Analysis & Local Visuals</option>
+                        <option value="Premium">Premium Tier - Gemini AI & Actions ($49/mo)</option>
+                    </select>
+                </div>
+                
+                {{ form.submit(id="auth-submit-btn", class="auth-btn-submit", value="Create Account →") }}
+            </form>
+            
+            <div class="mt-4 text-center">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Already possess an active profile?</span>
+                <a href="/auth/login" class="auth-link" style="margin-left: 5px;">Sign In</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth-animation.js') }}"></script>
+{% endblock %}

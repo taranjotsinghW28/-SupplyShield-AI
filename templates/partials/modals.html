@@ -1,0 +1,189 @@
+{% if current_user.is_authenticated %}
+<!-- GitLab Remediation Command Console Modal -->
+<div id="remediation-overlay-panel" class="modal-overlay">
+    <div class="modal-overlay-card ufo-panel-card p-0 modal-slide-up">
+        <div class="modal-form-panel p-4" style="overflow-y: auto; max-height: 80vh;">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                <h5 class="modal-title-text">⚡ Fleet Remediation Console</h5>
+                <button type="button" class="btn-close" onclick="closeRemediationPanel()"></button>
+            </div>
+
+            <!-- List of high-risk supplier targets -->
+            <label class="modal-section-label d-block mb-1">Select High-Risk Target</label>
+            <div id="remediation-targets-list" class="modal-targets-col mb-3"
+                style="max-height: 160px; overflow-y: auto; border: 1px solid var(--border-glass); border-radius: 12px; padding: 8px;">
+                <p style="color: var(--text-muted); font-size: 0.82rem; text-align: center; margin: 0; padding: 10px;">
+                    Loading targets...</p>
+            </div>
+
+            <input type="text" id="gl-project-id" class="form-control mb-2" placeholder="GitLab Project ID">
+            <input type="password" id="gl-access-token" class="form-control mb-2"
+                placeholder="GitLab Access Token (Optional: overrides ENV token)">
+            <input type="text" id="gl-title" class="form-control mb-2" placeholder="Subject/Title">
+
+            <div class="row">
+                <div class="col-6"><select id="gl-category" class="form-select mb-2">
+                        <option value="bug">Bug</option>
+                        <option value="feature">Feature</option>
+                    </select></div>
+                <div class="col-6"><select id="gl-severity" class="form-select mb-2">
+                        <option value="low">Low</option>
+                        <option value="critical">Critical</option>
+                    </select></div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="modal-section-label mb-0">Description</label>
+                <button type="button" id="ai-draft-trigger-btn" class="btn btn-xs btn-outline-primary"
+                    onclick="draftTicketWithAI()">✨ Create with AI</button>
+            </div>
+            <textarea id="remediation-ticket-editor" class="form-control modal-textarea mb-2"
+                placeholder="Describe the issue..."></textarea>
+
+            <div class="text-center my-2">
+                <button type="button" class="btn btn-sm btn-outline-warning" onclick="openPremiumCheckoutPanel()">👑
+                    Unlock Premium AI Ticket Drafting</button>
+            </div>
+
+            <div class="d-flex justify-content-between gap-2 mt-3 pt-2 border-top">
+                <button type="button" id="bulk-dispatch-all-btn" class="btn btn-sm btn-outline-danger"
+                    onclick="dispatchAllHighRiskTickets()">⚡ Bulk Dispatch All</button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-secondary"
+                        onclick="closeRemediationPanel()">Cancel</button>
+                    <button type="button" id="remediation-dispatch-btn" class="btn btn-sm btn-success"
+                        onclick="dispatchRemediationTickets()" disabled>📥 Dispatch Ticket</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Email Alert Communication Modal -->
+<div id="email-overlay-panel" class="modal-overlay">
+    <div class="modal-overlay-card ufo-panel-card p-0 modal-slide-up"
+        style="max-width: 700px; width: 95%; display: block;">
+        <div class="modal-form-panel p-4" style="overflow-y: auto; max-height: 80vh;">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                <h5 class="modal-title-text">📧 Secure Comms Transmitter</h5>
+                <button type="button" class="btn-close" onclick="closeEmailPanel()"></button>
+            </div>
+
+            <!-- List of high-risk supplier targets -->
+            <label class="modal-section-label d-block mb-1">Select High-Risk Target</label>
+            <div id="email-targets-list" class="modal-targets-col mb-3"
+                style="max-height: 120px; overflow-y: auto; border: 1px solid var(--border-glass); border-radius: 12px; padding: 8px;">
+                <p style="color: var(--text-muted); font-size: 0.82rem; text-align: center; margin: 0; padding: 10px;">
+                    Loading targets...</p>
+            </div>
+
+            <div class="mb-3">
+                <label class="modal-section-label d-block mb-1">Recipient Email</label>
+                <input type="email" id="email-recipient-input" class="form-control"
+                    placeholder="Enter recipient email address (e.g., person@company.com)"
+                    oninput="handleRecipientEmailChange()">
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="modal-section-label mb-0">Email Content</label>
+                <button type="button" id="ai-email-trigger-btn" class="btn btn-xs btn-outline-primary"
+                    onclick="draftEmailWithAI()" disabled>✨ Compose with AI</button>
+            </div>
+            <textarea id="email-content-editor" class="form-control modal-textarea email-textarea mb-2"
+                placeholder="Write your compliance alert email..." oninput="handleRecipientEmailChange()"
+                style="height: 180px;"></textarea>
+
+            <div class="text-center my-2">
+                <button type="button" class="btn btn-sm btn-outline-warning" onclick="openPremiumCheckoutPanel()">👑
+                    Unlock Premium AI Copywriter</button>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+                <button type="button" class="btn btn-sm btn-secondary" onclick="closeEmailPanel()">Cancel</button>
+                <button type="button" id="email-transmit-btn" class="btn btn-sm btn-success"
+                    onclick="transmitAlertEmail()" disabled>🚀 Send Alert Email</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Premium Enterprise Upgrade Modal -->
+<div id="premium-checkout-overlay" class="modal-overlay">
+    <div
+        class="modal-overlay-card ufo-panel-card p-0 split-modal-container modal-slide-up premium-modal-card premium-modal-animated">
+        <!-- LEFT: Graphical Cyber Shield Visual -->
+        <div class="modal-graphic-panel">
+            <img src="{{ url_for('static', filename='img/security_shield.png') }}" alt="Security Shield"
+                class="modal-graphic-img animate-float">
+            <div class="modal-graphic-badge" style="background: rgba(155, 89, 182, 0.8) !important;">Clearance Level
+            </div>
+            <div class="modal-feature-list">
+                <div class="modal-feature-pill">👑 Gemini AI risk explanations</div>
+                <div class="modal-feature-pill">📄 Executive PDF reporting</div>
+                <div class="modal-feature-pill">📧 One-click compliance email</div>
+                <div class="modal-feature-pill">⚡ GitLab ticket automation</div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Billing Sandbox Forms -->
+        <div class="modal-form-panel p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom modal-header-bar">
+                <h5 class="modal-title-text" style="color: #9B59B6;">👑 Enterprise Clearance Tunnel</h5>
+                <button type="button" class="btn-close" onclick="closePremiumCheckoutPanel()"></button>
+            </div>
+            <div class="premium-feature-list p-3 mb-3 rounded"
+                style="background: rgba(155, 89, 182, 0.08); border: 1px solid rgba(155, 89, 182, 0.25);">
+                <small class="text-uppercase fw-bold premium-label" style="color: #9B59B6; font-size: 0.75rem;">Premium
+                    Access Matrix ($49/mo)</small>
+                <p style="font-size: 0.8rem; margin: 5px 0 0 0; line-height: 1.4; color: var(--text-primary);">
+                    ⚡ Gemini custom GitLab ticket drafting<br>
+                    ⚡ AI compliance email generator<br>
+                    ⚡ Executive PDF audit report downloads<br>
+                    ⚡ Access to Workspace AI Chat Copilot
+                </p>
+            </div>
+            <form id="sandbox-payment-form" action="/auth/upgrade-profile" method="POST"
+                onsubmit="executeMockPaymentTransition(event)">
+                <p class="text-muted sandbox-note" style="font-size: 0.75rem; margin-bottom: 8px;">💳 Simulated sandbox
+                    — no real charges.</p>
+                <div class="mb-2">
+                    <label class="modal-section-label d-block mb-1" style="font-size: 0.75rem;">Cardholder Name</label>
+                    <input type="text" class="form-control auth-form-input py-1" value="{{ current_user.username }}"
+                        required>
+                </div>
+                <div class="mb-2">
+                    <label class="modal-section-label d-block mb-1" style="font-size: 0.75rem;">Card Number</label>
+                    <input type="text" class="form-control auth-form-input py-1" placeholder="4111 •••• •••• 9924"
+                        required>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="modal-section-label d-block mb-1" style="font-size: 0.75rem;">Expiration</label>
+                        <input type="text" class="form-control auth-form-input py-1" placeholder="MM/YY" required
+                            maxlength="5">
+                    </div>
+                    <div class="col-6">
+                        <label class="modal-section-label d-block mb-1" style="font-size: 0.75rem;">CVV</label>
+                        <input type="password" class="form-control auth-form-input py-1" placeholder="•••" required
+                            maxlength="3">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2 pt-2 border-top modal-footer-bar">
+                    <button type="button" class="btn btn-sm btn-secondary modal-action-chip"
+                        onclick="closePremiumCheckoutPanel()">Cancel</button>
+                    <button type="submit" class="btn btn-sm btn-primary modal-action-chip premium-submit-btn"
+                        style="background: #9B59B6 !important; border: none !important;">Authorize Upgrade</button>
+                </div>
+            </form>
+            <div id="payment-spinner-overlay" class="d-none text-center py-4">
+                <div class="ufo-loader" style="margin-bottom: 20px;">
+                    <div class="ufo-loader-dome"></div>
+                    <div class="ufo-loader-disc"></div>
+                </div>
+                <h6 style="font-weight: 800;">Contacting Ledger Clearing Networks...</h6>
+                <p class="text-muted" style="font-size: 0.75rem;">Verifying premium allocation criteria.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Premium — SupplyShield-AI{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:900px; margin-top:48px;">
+    <div class="tech-card p-4">
+        <h2 class="mb-3">👑 SupplyShield Premium</h2>
+        <p style="color: var(--text-muted);">Upgrade for AI-powered explanations, GitLab ticket drafts, SMTP validation, PDF exports, and priority support.</p>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <ul class="premium-features" style="list-style: none; padding: 0;">
+                    <li style="padding: 8px 0; color: var(--text-primary);">🤖 <strong>Gemini AI</strong> — advanced explanations and automated remediation drafts.</li>
+                    <li style="padding: 8px 0; color: var(--text-primary);">⚡ <strong>Draft GitLab Tickets</strong> — generate, preview, and export recommended tickets.</li>
+                    <li style="padding: 8px 0; color: var(--text-primary);">📧 <strong>Email Alerts</strong> — real-time compliance email transmission.</li>
+                    <li style="padding: 8px 0; color: var(--text-primary);">📄 <strong>PDF Reports</strong> — export executive summaries via ReportLab.</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 premium-pricing-card" style="border-radius:8px;">
+                    <h5 class="mb-2">Pricing</h5>
+                    <p class="mb-3 text-muted">$49 / month — billed monthly. Cancel anytime.</p>
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.tier == 'Premium' %}
+                            <div class="alert alert-success mb-0 py-2 text-center" style="font-weight: 700;">✅ You already have Premium access!</div>
+                        {% else %}
+                            <button type="button" class="btn btn-primary w-100" onclick="openPremiumCheckoutPanel()">👑 Upgrade to Premium Now</button>
+                        {% endif %}
+                    {% else %}
+                        <a href="/auth/register" class="btn btn-primary w-100">Create Premium Account</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

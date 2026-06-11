@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}SupplyShield-AI - Autonomous Risk Intelligence{% endblock %}
+
+{% block body_class %}landing-page{% endblock %}
+
+{% block content %}
+<section class="hero-atmosphere">
+    <div class="neon-arc neon-arc-1"></div>
+    <div class="neon-arc neon-arc-2"></div>
+    <div class="neon-arc neon-arc-3"></div>
+    <div class="hero-glass-orb d-none d-lg-block"></div>
+
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0 animate-pop">
+                <span class="hero-badge-glass mb-3 d-inline-block">✨ Autonomous Risk Intelligence</span>
+                <h1 class="hero-headline mb-3">
+                    Secure your corporate logistical perimeter.
+                </h1>
+                <p class="hero-subtitle mb-4" style="font-size: 1.1rem; line-height: 1.65;">
+                    An automated intelligence terminal that monitors supplier profiles, tracks time-series scores, and manages risk mitigation workflows seamlessly.
+                </p>
+                
+                <div class="d-flex gap-3 flex-wrap">
+                    {% if current_user.is_authenticated %}
+                        <a href="/dashboard" class="btn btn-glass-pill">Enter Control Terminal →</a>
+                    {% else %}
+                        <a href="/auth/login" class="btn btn-glass-pill">Initialize Audit Engine →</a>
+                    {% endif %}
+                    <a href="#system-breakdown" class="btn btn-outline-glass">Explore Overview</a>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 px-lg-4 animate-pop d-none d-lg-block" style="animation-delay: 0.15s;">
+                <div class="tech-card p-4" style="background: rgba(255,255,255,0.2) !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; color: rgba(255,255,255,0.9);">Live Feed Ingestion</span>
+                        <span class="hero-badge-glass" style="font-size: 0.65rem; padding: 4px 12px;">Active Monitor</span>
+                    </div>
+                    <h4 style="font-weight: 800; margin: 0 0 10px 0; font-size: 1.35rem; color: #FFF;">Global Logistics Audit Ledger</h4>
+                    <p style="font-size: 0.88rem; margin-bottom: 20px; color: rgba(255,255,255,0.75);">AI Core processing status: standing by for manager dataset manifests.</p>
+                    
+                    <div style="background: rgba(0,20,50,0.35); border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; overflow: hidden; font-family: var(--font-mono); backdrop-filter: blur(12px);">
+                        <div class="d-flex align-items-center px-3 py-2" style="background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1); gap: 6px;">
+                            <div style="width: 10px; height: 10px; background: #FF5F56; border-radius: 50%;"></div>
+                            <div style="width: 10px; height: 10px; background: #FFBD2E; border-radius: 50%;"></div>
+                            <div style="width: 10px; height: 10px; background: #27C93F; border-radius: 50%;"></div>
+                            <span class="ms-2 text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255,255,255,0.5); letter-spacing: 1px; font-family: var(--font-display);">supplyshield_core.py</span>
+                        </div>
+                        <div class="p-3" style="line-height: 1.6; font-size: 0.85rem;">
+                            <div style="color: #00F2FF; font-weight: 600;"><span style="color: #FF6B8A; margin-right: 4px;">$</span> mongo --host atlas_cluster_node</div>
+                            <div style="color: #00F2FF; font-weight: 600;"><span style="margin-right: 6px;">&gt;</span> db.suppliers.find({"processing_status": "Pending"})</div>
+                            <div style="color: #5DFFA2; font-weight: 700; text-shadow: 0 0 12px rgba(93,255,162,0.4); margin-top: 4px;">[System Registry: Operational 🟢]</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container-fluid py-4 content-section">
+    <div class="container text-center">
+        <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: var(--text-muted);">Engineered for Modern Corporate Protocols</span>
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-5 mt-3 fw-bold" style="font-size: 1rem; letter-spacing: -0.5px; color: var(--text-primary);">
+            <span>⚡ MONGO_ATLAS</span>
+            <span>🛡️ CISCO_NETWORK</span>
+            <span>📦 REVENUE_COMPLIANT</span>
+            <span>🌐 GEMINI_LLM_CORE</span>
+        </div>
+    </div>
+</div>
+
+<div id="system-breakdown" class="container-fluid py-5 content-section">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; color: var(--text-muted);">System Breakdown</span>
+            <h2 class="mt-2" style="font-weight: 900; font-size: 2.4rem; letter-spacing: -0.5px;">Assembling Integrated Intelligence</h2>
+        </div>
+
+        <div class="row g-4 mt-2">
+            <div class="col-md-4 reveal-on-scroll">
+                <div class="studio-card h-100">
+                    <div class="studio-card-visual arch-shape">
+                        <img src="{{ url_for('static', filename='img/feature_news.jpg') }}" alt="External News" onerror="this.style.display='none'">
+                    </div>
+                    <div class="studio-card-label">External News Ingestion</div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-on-scroll">
+                <div class="studio-card h-100">
+                    <div class="studio-card-visual ring-shape">
+                        <img src="{{ url_for('static', filename='img/feature_validation.jpg') }}" alt="Validation" onerror="this.style.display='none'">
+                    </div>
+                    <div class="studio-card-label">Dual-Layer Validation</div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-on-scroll">
+                <div class="studio-card h-100">
+                    <div class="studio-card-visual ramp-shape">
+                        <img src="{{ url_for('static', filename='img/feature_mitigation.jpg') }}" alt="Mitigation" onerror="this.style.display='none'">
+                    </div>
+                    <div class="studio-card-label">Autonomous Mitigation</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-4">
+            <div class="col-md-4 reveal-on-scroll">
+                <div class="tech-card p-4 h-100">
+                    <h5 style="font-weight: 800; margin-bottom: 12px;">External News Ingestion</h5>
+                    <p style="font-size: 0.9rem; line-height: 1.55; margin: 0; color: var(--text-muted);">Queries public media streams via NewsAPI to catch mentions of fraud, shortages, or compliance issues before they affect your pipeline.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-on-scroll">
+                <div class="tech-card p-4 h-100">
+                    <h5 style="font-weight: 800; margin-bottom: 12px;">Dual-Layer Validation</h5>
+                    <p style="font-size: 0.9rem; line-height: 1.55; margin: 0; color: var(--text-muted);">Runs regex validation alongside real-time SMTP server pings to verify corporate emails and prevent duplicate profiles.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-on-scroll">
+                <div class="tech-card p-4 h-100">
+                    <h5 style="font-weight: 800; margin-bottom: 12px;">Autonomous Mitigation</h5>
+                    <p style="font-size: 0.9rem; line-height: 1.55; margin: 0; color: var(--text-muted);">When risk scores cross 75, the platform flags issues and uses MCP tools to draft GitLab tickets and send email alerts.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5 my-4 content-section">
+    <div class="row align-items-center g-5">
+        <div class="col-lg-5 reveal-on-scroll">
+            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; color: var(--text-muted);">Analytics Architecture</span>
+            <h2 class="mt-2 mb-3" style="font-weight: 900; font-size: 2.2rem;">Unified Tracking Over Complex Vectors</h2>
+            <p style="line-height: 1.6; font-size: 0.95rem; color: var(--text-muted);">
+                Stop relying on scattered spreadsheets. Our telemetry core aggregates high-risk factors down to single-point indexing arrays instantly.
+            </p>
+            <ul class="list-unstyled mt-4" style="font-size: 0.9rem; font-weight: 600;">
+                <li class="mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="3" class="me-2"><polyline points="20 6 9 17 4 12"/></svg> Continuous time-series threat scaling loops</li>
+                <li class="mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="3" class="me-2"><polyline points="20 6 9 17 4 12"/></svg> Automated Gunicorn load optimization filters</li>
+                <li class="mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="3" class="me-2"><polyline points="20 6 9 17 4 12"/></svg> Secure isolated environment key configurations</li>
+            </ul>
+        </div>
+        <div class="col-lg-7 reveal-on-scroll">
+            <div class="tech-card p-4">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3" style="border-color: var(--border-glass) !important;">
+                    <span class="fw-bold" style="font-size: 0.85rem;">🛡️ Fleet Incident Radar</span>
+                    <span style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--accent-cyan);">SECURE_TUNNEL: ACTIVE</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="p-3 rounded" style="background: rgba(255,255,255,0.3); border: 1px solid var(--border-glass);">
+                            <small class="text-uppercase" style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted);">Evaluated Vendors</small>
+                            <h3 class="m-0 mt-1 fw-bold">148</h3>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 rounded" style="background: rgba(255,255,255,0.3); border: 1px solid var(--border-glass);">
+                            <small class="text-uppercase" style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted);">Remediation Flags</small>
+                            <h3 class="m-0 mt-1 fw-bold" style="color: var(--danger-red);">02 <small style="font-size:0.8rem;">Unsolved</small></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 p-3 rounded font-monospace" style="background: rgba(0,20,50,0.06); font-size: 0.75rem; color: var(--text-muted); border: 1px solid var(--border-glass);">
+                    <span style="color: var(--danger-red);">[ALERT]</span> 2 High-Risk targets found in CSV processing payload.<br>
+                    <span style="color: var(--accent-blue);">[MCP Engine]</span> GitLab tracking tickets auto-generated for review.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid py-5 content-section">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; color: var(--text-muted);">Platform Tiers</span>
+            <h2 class="mt-2" style="font-weight: 900; font-size: 2.2rem;">Operational Authorization Levels</h2>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-5 reveal-on-scroll">
+                <div class="tech-card p-4 h-100">
+                    <span class="badge mb-2">Standard Clearance</span>
+                    <h4 style="font-weight: 800;">Free Tier Workspace</h4>
+                    <p style="font-size: 0.88rem; color: var(--text-muted);">Baseline inventory scanning against global tracking vectors.</p>
+                    <ul class="list-unstyled mt-3" style="font-size: 0.85rem; line-height: 2;">
+                        <li><span style="color: var(--accent-cyan); margin-right:6px;">✔</span> Drag-and-drop CSV parser injection</li>
+                        <li><span style="color: var(--accent-cyan); margin-right:6px;">✔</span> Single-page analytical reporting ledger</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-5 reveal-on-scroll">
+                <div class="tech-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge">Full Command Desk</span>
+                        <span class="hero-badge-glass" style="font-size: 0.6rem; color: var(--text-primary); background: rgba(0,242,255,0.15); border-color: rgba(0,242,255,0.3);">Recommended</span>
+                    </div>
+                    <h4 style="font-weight: 800;">Premium Intelligence Tier</h4>
+                    <p style="font-size: 0.88rem; color: var(--text-muted);">Complete autonomous pipeline enforcement and contextual threat mitigation.</p>
+                    <ul class="list-unstyled mt-3" style="font-size: 0.85rem; line-height: 2;">
+                        <li><span style="color: var(--accent-cyan); margin-right:6px;">✦</span> All Standard Tier Core Operations</li>
+                        <li><span style="color: var(--accent-cyan); margin-right:6px;">✦</span> Real-time Gemini LLM dialogue console</li>
+                        <li><span style="color: var(--accent-cyan); margin-right:6px;">✦</span> Instant MCP ticket distribution nodes</li>
+                    </ul>
+                    <a href="/auth/register" class="btn btn-primary w-100 mt-3">Get Premium Access</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SupplyShield-AI Control Center{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}inner-page{% endblock %}">
+
+ <nav class="navbar navbar-expand-lg navbar-custom py-3 animate-pop">
+        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+            
+            <a href="/" class="nav-logo text-decoration-none d-flex align-items-center gap-2">
+                <div class="nav-logo-circle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L4 6v6c0 5.5 3.6 10.2 8 11 4.4-.8 8-5.5 8-11V6l-8-4z"/>
+                        <path d="M9 11l3 3 5-5" stroke-width="2"/>
+                    </svg>
+                </div>
+                <span class="nav-logo-text">SupplyShield <small class="nav-logo-tag">AI</small></span>
+            </a>
+
+            <div class="d-flex align-items-center gap-3">
+                
+                {% if current_user.is_authenticated %}
+                    <span class="d-none d-md-inline-block fw-semibold" style="color: var(--text-muted); font-size: 0.9rem; letter-spacing: 0.3px;">
+                        Manager: <b style="color: var(--text-primary);">{{ current_user.username }}</b> 
+                        <span class="mx-2" style="color: var(--border-color);">|</span> 
+                        Clearance: <span class="fw-bold" style="color: #9B59B6;">{{ current_user.tier }}</span>
+                    </span>
+                    
+                    {% if current_user.tier != 'Premium' %}
+                        <a class="nav-link-btn fw-bold text-decoration-none animate-pulse" href="/premium" style="color: #9B59B6 !important; background: rgba(155, 89, 182, 0.12); padding: 8px 18px; border-radius: 6px; font-size: 0.85rem; border: 1px solid rgba(155, 89, 182, 0.3); font-weight: 700;">
+                            👑 Upgrade to Premium
+                        </a>
+                    {% else %}
+                        <span class="badge d-flex align-items-center gap-1" style="background-color: #9B59B6; font-weight: 700; border-radius: 6px; padding: 8px 16px; font-size: 0.8rem; letter-spacing: 0.5px; box-shadow: 0 0 15px rgba(155, 89, 182, 0.2);">
+                            PREMIUM CORE UNLOCKED
+                        </span>
+                    {% endif %}
+
+                    <a href="/" class="nav-link-btn text-decoration-none d-flex align-items-center gap-1" style="padding: 8px 18px; font-size: 0.9rem; font-weight: 700;">Home</a>
+                    <a href="/dashboard" class="nav-link-btn text-decoration-none d-flex align-items-center gap-1" style="padding: 8px 18px; font-size: 0.9rem; font-weight: 700;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        Dashboard
+                    </a>
+                    <a href="/auth/logout" class="nav-link-btn text-decoration-none" style="color: var(--danger-red); padding: 8px 18px; font-size: 0.9rem; font-weight: 700; background: rgba(231, 76, 60, 0.06); border-color: rgba(231, 76, 60, 0.2) !important;">Logout Tunnel</a>
+                
+                {% else %}
+                    <a href="/" class="nav-link-btn text-decoration-none d-flex align-items-center gap-1" style="padding: 8px 18px; font-size: 0.9rem; font-weight: 700;">Home</a>
+                    <a href="/premium" class="nav-link-btn fw-bold text-decoration-none" style="padding: 8px 18px; font-size: 0.9rem;">Pricing</a>
+                    <a href="/auth/login" class="nav-link-btn btn-ghost-pill text-decoration-none d-flex align-items-center gap-1" style="padding: 8px 22px; font-size: 0.9rem; font-weight: 600;">
+                        Sign In
+                    </a>
+                    <a href="/auth/register" class="nav-link-btn btn-glass-pill text-decoration-none" style="padding: 8px 22px; font-size: 0.9rem;">Sign Up</a>
+                {% endif %}
+
+                <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+
+                <div class="theme-switch-wrapper d-flex align-items-center gap-2">
+                    <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.8px;">THEME</span>
+                    <label class="theme-switch" style="margin: 0;">
+                        <input type="checkbox" id="theme-toggle-checkbox">
+                        <div class="slider-round"></div>
+                    </label>
+                </div>
+            </div>
+            
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="alert alert-info tech-card animate-pop" style="border-left-color: var(--accent-blue); padding: 15px; margin-bottom: 20px; color: var(--text-primary); background: var(--bg-card);">
+                        {{ msg }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <div id="toast-container" aria-live="polite"></div>
+    {% include "partials/modals.html" %}
+
+    <!-- FLOATING CHATBOT ASSISTANT (Premium Gateways) -->
+    {% if current_user.is_authenticated %}
+    <div id="workspace-copilot-bubble" class="copilot-bubble animate-pop" onclick="toggleWorkspaceCopilot()" title="GPT Aghat: Premium Workspace Copilot">
+        <span class="copilot-bubble-icon">🤖</span>
+        <span class="copilot-bubble-text">GPT Aghat</span>
+        <span class="copilot-bubble-badge">AI</span>
+    </div>
+    
+    <div id="workspace-copilot-window" class="copilot-window d-none animate-slide-up">
+        <div class="copilot-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <div class="copilot-header-dot"></div>
+                <h6 class="mb-0 fw-bold text-white">SupplyShield AI Assistant</h6>
+            </div>
+            <button type="button" class="btn-close btn-close-white" onclick="toggleWorkspaceCopilot()"></button>
+        </div>
+        <div class="copilot-chat-body" id="copilot-chat-messages">
+            <div class="chat-bubble chat-bubble-ai">
+                Welcome to SupplyShield-AI. I am your workspace assistant copilot. Ask me anything about your supply chain risks.
+            </div>
+        </div>
+        
+        <div class="copilot-chat-footer p-2 bg-white border-top d-flex gap-2">
+            <input type="text" id="copilot-input-text" class="form-control" placeholder="Ask general risk advice..." style="padding: 8px; border-radius: 6px; font-size: 0.85rem;">
+            <button class="btn btn-dark btn-sm px-3" onclick="sendCopilotQuery()" style="border-radius: 6px; background: var(--text-primary); color: var(--bg-main); border: none;">Send</button>
+        </div>
+        
+        {% if current_user.tier != 'Premium' %}
+        <div class="copilot-paywall-overlay d-flex flex-column align-items-center justify-content-center text-center p-3">
+            <span style="font-size: 1.5rem; margin-bottom: 5px;">🔒</span>
+            <h6 class="fw-bold mb-1 text-dark">AI Chatbot Locked</h6>
+            <p class="text-muted mb-3" style="font-size: 0.75rem; line-height: 1.3;">Interactive workspace copilot is reserved for Premium Tier accounts.</p>
+            <button type="button" class="btn btn-xs btn-primary px-3 py-1" onclick="openPremiumCheckoutPanel()" style="font-size: 0.75rem; border-radius: 20px;">Upgrade Workspace</button>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+     <div id="ai-drawer" class="ai-drawer-hidden">
+    <textarea id="ai-prompt-input" placeholder="Explain what to write..."></textarea>
+    <button class="btn btn-primary w-100" onclick="generateAndInject()">Generate & Inject</button>
+</div>
+    <footer class="corporate-footer text-center">
+        <p class="mb-2" style="font-weight: 500;">© 2026 SupplyShield-AI Operational Systems. All protocol parameters secured.</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">
+            Distributed and deployed under the open-source <span style="color: var(--text-primary); font-weight: 700;">MIT License Agreement Framework</span>.
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/ambient-animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

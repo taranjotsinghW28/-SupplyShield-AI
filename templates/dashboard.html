@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SupplyShield-AI{% endblock %}
+
+{% block head %}
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="status-pill-row mb-4">
+        <span class="status-pill">Free Tier: Secure CSV upload + analytics preview</span>
+        <span class="status-pill status-pill-premium">Premium: AI email, GitLab, PDF, copilot</span>
+    </div>
+
+    <div id="upload-stage-view" class="tech-card animate-pop" style="padding: 36px;">
+        <div class="dashboard-section-header">
+            <h3>Import Inventory Dataset Manifest</h3>
+            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0;">Upload logistical logs to initialize autonomous risk validation tracking networks.</p>
+        </div>
+        
+        <form id="file-drop-form" method="POST" enctype="multipart/form-data" action="/api/upload-csv">
+            <div id="drop-zone-deck" class="upload-deck-box pinterest-hero">
+                <div class="upload-deck-left">
+                    <div class="upload-icon-ring">📥</div>
+                    <h5 style="font-weight: 700; margin-bottom: 8px;">Drag &amp; drop your vendor manifest here</h5>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">Accepts formatted CSV files with supplier inventory data</p>
+                    <input type="file" id="file-input-hidden" name="file" accept=".csv" style="display: none;">
+                    <button type="button" class="upload-browse-btn" onclick="document.getElementById('file-input-hidden').click()">Browse Local Storage</button>
+                </div>
+                <div class="upload-preview">
+                    <h6 style="font-weight:800; font-size:0.95rem; margin:0 0 8px 0;">Preview — Dashboard Snapshot</h6>
+                    <img src="{{ url_for('static', filename='img/dashboard_preview.png') }}" alt="preview" onerror="this.style.display='none'">
+                    <p style="font-size:0.82rem; color: var(--text-muted); margin-top:8px;">Quick glance at how results will appear after processing your CSV.</p>
+                    <p style="font-size:0.78rem; color: var(--accent-cyan); margin-top:12px; font-weight:600;">SupplyShield-AI will preserve extra supplier fields and infer structure from freeform data whenever possible. If a dataset is too large or too irregular to safely analyze, an upload error will tell you how to split it.</p>
+                </div>
+            </div>
+        </form>
+
+        <div class="mt-4">
+            <h6 style="font-weight: 700; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Expected Format Layout</h6>
+            <div class="table-responsive mt-2">
+                <table class="table table-bordered table-sm text-center format-preview-table">
+                    <thead>
+                        <tr><th>name</th><th>category</th><th>country</th><th>contact_email</th><th>certifications</th><th>delivery_history</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Apex Industrial</td><td>Electronics</td><td>Taiwan</td><td>apex@email.com</td><td>ISO-9001,CE</td><td>98.5,96.2,94.0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="chef-loading-stage" class="tech-card d-none processing-stage">
+        <div class="ufo-loader">
+            <div class="ufo-loader-dome"></div>
+            <div class="ufo-loader-disc"></div>
+            <div class="ufo-loader-beam"></div>
+        </div>
+        <h4 style="font-weight: 800; margin-bottom: 8px;">Scanning supplier fleet data...</h4>
+        <p id="processing-status-text" style="color: var(--text-muted); font-size: 0.95rem;">Ingesting data points and querying live NewsAPI background logs.</p>
+        <div class="processing-progress">
+            <div class="processing-progress-bar"></div>
+        </div>
+        <div class="mt-3 d-flex flex-column align-items-center gap-2">
+            <button type="button" id="cancel-scan-btn" class="dashboard-action-btn dashboard-action-danger">✖ Cancel scan / upload new file</button>
+            <p style="font-size:0.82rem; color: var(--text-muted); max-width: 520px; text-align:center;">Scan throughput is driven by backend AI and database processing. The client cannot speed it up, but you can cancel polling and upload a new file anytime.</p>
+        </div>
+    </div>
+
+    <div id="results-stage-view" class="d-none results-fade-in">
+        
+        <div class="ufo-cockpit-header">
+            <div class="status-chip">◉ System Registry Analysis Complete</div>
+            <h2 style="font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px;">Logistical Risk Evaluation Cockpit</h2>
+        </div>
+
+        <!-- BACK TO UPLOAD BUTTON -->
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <button type="button" class="dashboard-action-btn" onclick="clearScanAndReturn()" style="border-color: rgba(255,71,87,0.35); color: #c0392b;">
+                    ⬅ Cancel & Upload New File
+                </button>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="dashboard-action-btn dashboard-action-success" onclick="saveCurrentScan()">
+                    💾 Save Scan
+                </button>
+                <button type="button" class="dashboard-action-btn dashboard-action-primary" onclick="toggleScanHistoryPanel()" id="scan-history-toggle-btn">
+                    📂 Scan History
+                </button>
+            </div>
+        </div>
+
+        <!-- Scan History Panel -->
+        <div id="scan-history-panel" class="d-none tech-card mb-4" style="padding: 20px;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 style="font-weight: 800; color: var(--text-primary); margin: 0;">📂 Scan History</h5>
+                <button type="button" class="btn-close" onclick="toggleScanHistoryPanel()"></button>
+            </div>
+            <div id="scan-history-list" style="max-height: 300px; overflow-y: auto;">
+                <p style="color: var(--text-muted); font-size: 0.85rem;">Loading history...</p>
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-6 mb-4">
+                <div class="ufo-panel-card" style="min-height: 350px;">
+                    <div class="ufo-panel-title"><span class="panel-dot"></span> Risk Score Index Distribution</div>
+                    <div id="plotly-bar-chart" style="height: 240px;"></div>
+                    <p class="chart-description">📊 Shows how many suppliers fall into each hazard score range: Low (0-25), Medium (26-50), Elevated (51-75), and Critical (76-100). Helps identify the overall risk concentration in your supply chain.</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="ufo-panel-card" style="min-height: 350px;">
+                    <div class="ufo-panel-title"><span class="panel-dot"></span> Threat Allocation Profile</div>
+                    <div id="plotly-pie-chart" style="height: 240px;"></div>
+                    <p class="chart-description">🥧 Visual breakdown of supplier risk statuses (Low, Medium, High) as percentages of your total fleet. Instantly see what proportion of your vendors need attention.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-6 mb-4">
+                <div class="ufo-panel-card" style="min-height: 360px;">
+                    <div class="ufo-panel-title"><span class="panel-dot"></span> Performance Risk Matrix Heatmap</div>
+                    <div id="plotly-heatmap-chart" style="height: 250px;"></div>
+                    <p class="chart-description">🔥 Cross-references delivery performance (High/Mid/Low) against hazard level (Low/Mid/High). Darker cells indicate areas where both risk and performance issues overlap — your highest priority zones.</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="ufo-panel-card" style="min-height: 360px;">
+                    <div class="ufo-panel-title"><span class="panel-dot"></span> Certification Expiry Timeline</div>
+                    <div id="plotly-timeline-chart" style="height: 250px;"></div>
+                    <p class="chart-description">📅 Tracks upcoming compliance certification deadlines for each supplier. Helps you proactively schedule renewals and avoid lapses in certified status.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-2">
+            <div class="col-md-6 mb-4">
+                <div class="ufo-panel-card" style="min-height: 380px;">
+                    <div class="ufo-panel-title"><span class="panel-dot"></span> Structural Supplier Treemap Hierarchy</div>
+                    <div id="plotly-treemap-chart" style="height: 270px;"></div>
+                    <p class="chart-description">🌳 Hierarchical view of your supply chain grouped by category. Tile size represents the number of suppliers in each segment — larger blocks mean higher dependency on that category.</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="ufo-panel-card" style="min-height: 380px;">
+                    <div class="ufo-panel-title"><span class="panel-dot"></span> Supplier Interconnected Dependency Graph</div>
+                    <div id="plotly-network-chart" style="height: 270px;"></div>
+                    <p class="chart-description">🔗 Network visualization showing how all suppliers connect to your central hub. Each node represents a supplier — helps visualize supply chain complexity and single points of failure.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tech-card supplier-registry-card" style="padding: 28px;">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 border-bottom pb-2" style="border-color: var(--border-color) !important;">
+                <div>
+                    <h5 style="font-weight: 800; color: var(--text-primary); margin: 0;">Supplier Registry Index</h5>
+                    <p class="text-muted" style="font-size: 0.75rem; margin: 0;">Execute system mitigation scripts or export corporate analytical data reports.</p>
+                </div>
+                
+                <div class="d-flex gap-2 flex-wrap align-items-center dashboard-action-bar">
+                    <button type="button" class="dashboard-action-btn" onclick="copyTableToClipboard()">📋 Copy List</button>
+                    <a href="/api/export/suppliers-csv?type=all" class="dashboard-action-btn dashboard-action-success">📊 Export All</a>
+                    <a href="/api/export/suppliers-csv?type=high_risk" class="dashboard-action-btn dashboard-action-danger">⚠️ High-Risk CSV</a>
+                    {% if current_user.tier == 'Premium' %}
+                    <a href="/api/export/compliance-pdf" target="_blank" class="dashboard-action-btn dashboard-action-premium">👑 PDF Report</a>
+                    {% else %}
+                    <button type="button" class="dashboard-action-btn dashboard-action-locked" onclick="openPremiumCheckoutPanel()">🔒 PDF Report</button>
+                    {% endif %}
+                    <button type="button" class="dashboard-action-btn dashboard-action-danger" onclick="openRemediationPanel()">⚡ GitLab Remediate</button>
+                    <button type="button" class="dashboard-action-btn dashboard-action-primary" onclick="openEmailPanel()">📧 Email Alerts</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle" style="margin: 0; font-size: 0.95rem;" id="core-supplier-data-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Supplier Name ID</th>
+                            <th>Category Node</th>
+                            <th>Region</th>
+                            <th>Delivery Performance</th>
+                            <th>Hazard Index</th>
+                            <th>Status Rank</th>
+                        </tr>
+                    </thead>
+                    <tbody id="supplier-table-rows">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
