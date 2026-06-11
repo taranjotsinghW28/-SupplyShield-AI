@@ -780,32 +780,43 @@ def draft_ai_ticket_api():
         return jsonify({"success": False, "message": "Feature locked. Premium license subscription needed."}), 403
 
     payload = request.get_json()
-    supplier_name = payload.get('supplier_name', '')
-    
-    names_list = [s.strip() for s in supplier_name.split(',')]
+    supplier_name = payload.get('supplier_name', '').strip()
+    if not supplier_name:
+        return jsonify({"success": False, "message": "No supplier target provided."}), 400
+
+    names_list = [s.strip() for s in supplier_name.split(',') if s.strip()]
+
+    # Try exact name match first, then email, then case-insensitive regex
     nodes = list(db.suppliers.find({"name": {"$in": names_list}}))
     if not nodes:
         nodes = list(db.suppliers.find({"contact_email": {"$in": names_list}}))
     if not nodes:
-        return jsonify({"success": False, "message": "Target vendor log node missing."}), 404
+        import re
+        patterns = [re.compile(f'^{re.escape(n)}$', re.IGNORECASE) for n in names_list]
+        nodes = list(db.suppliers.find({"name": {"$in": patterns}}))
 
     try:
         # Construct custom analyst instructions using data variables from MongoDB
         query_context = "Compose an enterprise-grade GitLab incident issue ticket description tracking the following suppliers:\n"
-        for node in nodes:
-            query_context += (
-                f"- {node['name']} (Category: {node.get('category', 'Unknown')}, "
-                f"Country: {node.get('country', 'Unknown')}, "
-                f"Hazard: {node.get('hazard_score', 0)}/100, "
-                f"On-Time Rate: {node.get('overall_on_time_rate', 100)}%)\n"
-            )
+        if nodes:
+            for node in nodes:
+                query_context += (
+                    f"- {node['name']} (Category: {node.get('category', 'Unknown')}, "
+                    f"Country: {node.get('country', 'Unknown')}, "
+                    f"Hazard: {node.get('hazard_score', 0)}/100, "
+                    f"On-Time Rate: {node.get('overall_on_time_rate', 100)}%)\n"
+                )
+        else:
+            # No DB record found — use raw names for a generic ticket
+            for name in names_list:
+                query_context += f"- {name}\n"
         query_context += (
             "Write a comprehensive markdown report listing explicit operational vectors exposed, risk abstract details, "
             "and include 3 distinct smart pipeline mitigation steps to assign to the engineering response crew."
         )
-        
-        # Leverages existing conversational text generator context
-        ai_draft_response = handle_compliance_chat(query_context, "Multiple Suppliers" if len(nodes) > 1 else nodes[0]['name'])
+
+        primary_name = nodes[0]['name'] if nodes else (names_list[0] if names_list else "Supplier")
+        ai_draft_response = handle_compliance_chat(query_context, "Multiple Suppliers" if len(names_list) > 1 else primary_name)
         return jsonify({"success": True, "ai_markdown_draft": ai_draft_response})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
@@ -920,28 +931,41 @@ def draft_ai_email_api():
         return jsonify({"success": False, "message": "Feature locked. Premium license subscription required."}), 403
 
     payload = request.get_json()
-    supplier_name = payload.get('supplier_name', '')
+    supplier_name = payload.get('supplier_name', '').strip()
+    if not supplier_name:
+        return jsonify({"success": False, "message": "No supplier target provided."}), 400
+
+    names_list = [s.strip() for s in supplier_name.split(',') if s.strip()]
     
-    names_list = [s.strip() for s in supplier_name.split(',')]
+    # Try exact name match first, then email, then case-insensitive regex
     nodes = list(db.suppliers.find({"name": {"$in": names_list}}))
     if not nodes:
         nodes = list(db.suppliers.find({"contact_email": {"$in": names_list}}))
     if not nodes:
-        return jsonify({"success": False, "message": "Target vendor routing record missing."}), 404
+        # Case-insensitive fallback
+        import re
+        patterns = [re.compile(f'^{re.escape(n)}$', re.IGNORECASE) for n in names_list]
+        nodes = list(db.suppliers.find({"name": {"$in": patterns}}))
 
     try:
         query_context = "Write a formal compliance alert notice email to the following suppliers:\n"
-        for node in nodes:
-            query_context += (
-                f"- {node['name']} (Category: {node.get('category', 'Unknown')}, "
-                f"Hazard Index: {node.get('hazard_score', 0)}/100, "
-                f"On-Time Rate: {node.get('overall_on_time_rate', 100)}%)\n"
-            )
+        if nodes:
+            for node in nodes:
+                query_context += (
+                    f"- {node['name']} (Category: {node.get('category', 'Unknown')}, "
+                    f"Hazard Index: {node.get('hazard_score', 0)}/100, "
+                    f"On-Time Rate: {node.get('overall_on_time_rate', 100)}%)\n"
+                )
+        else:
+            # No DB record found — use the raw names provided and generate a generic alert
+            for name in names_list:
+                query_context += f"- {name}\n"
         query_context += (
             "Demand immediate corrective logs regarding these supply bottlenecks, "
             "mention professional service legal requirements, and keep the tone urgent yet executive."
         )
-        ai_email_response = handle_compliance_chat(query_context, "Multiple Suppliers" if len(nodes) > 1 else nodes[0]['name'])
+        primary_name = nodes[0]['name'] if nodes else (names_list[0] if names_list else "Supplier")
+        ai_email_response = handle_compliance_chat(query_context, "Multiple Suppliers" if len(names_list) > 1 else primary_name)
         return jsonify({"success": True, "ai_email_draft": ai_email_response})
     except Exception as err:
         return jsonify({"success": False, "message": str(err)}), 500

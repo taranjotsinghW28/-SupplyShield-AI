@@ -452,10 +452,12 @@ function handleRecipientEmailChange() {
     const editor = document.getElementById("email-content-editor");
     
     const email = emailInput.value.trim();
-    const isValid = email.length > 0 && email.includes('@') && email.includes('.');
+    const isValidEmail = email.length > 0 && email.includes('@') && email.includes('.');
+    // AI can be enabled if suppliers are selected OR a valid email is typed
+    const hasTargets = (window.SELECTED_EMAIL_TARGET_NODE_NAMES && window.SELECTED_EMAIL_TARGET_NODE_NAMES.length > 0);
     
-    transmitBtn.disabled = !isValid || !editor.value.trim();
-    aiBtn.disabled = !isValid;
+    transmitBtn.disabled = !(isValidEmail || hasTargets) || !editor.value.trim();
+    aiBtn.disabled = !(isValidEmail || hasTargets);
 }
 
 function draftEmailWithAI() {
@@ -464,13 +466,17 @@ function draftEmailWithAI() {
     const aiBtn = document.getElementById("ai-email-trigger-btn");
     const recipientEmail = emailInput.value.trim();
     
-    if (!recipientEmail) return;
+    const hasTargets = window.SELECTED_EMAIL_TARGET_NODE_NAMES && window.SELECTED_EMAIL_TARGET_NODE_NAMES.length > 0;
+    if (!hasTargets && !recipientEmail) {
+        alert("Please select at least one supplier target or enter a recipient email.");
+        return;
+    }
     
     aiBtn.disabled = true;
     aiBtn.innerHTML = `⏳ Composing...`;
     
-    const targetPayload = window.SELECTED_EMAIL_TARGET_NODE_NAMES && window.SELECTED_EMAIL_TARGET_NODE_NAMES.length > 0 
-        ? window.SELECTED_EMAIL_TARGET_NODE_NAMES.join(',') 
+    const targetPayload = hasTargets
+        ? window.SELECTED_EMAIL_TARGET_NODE_NAMES.join(',')
         : recipientEmail;
     
     fetch("/api/analytics/draft-ai-email", {
