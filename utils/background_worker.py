@@ -62,7 +62,7 @@ def fetch_external_news(supplier_name: str, country: str, category: str) -> list
     """
     global NEWS_API_CALL_COUNTER
     if NEWS_API_CALL_COUNTER >= 100:
-        print("⚠️ NewsAPI daily free tier threshold reached. Skipping live news queries.")
+        print("[WARN] NewsAPI daily free tier threshold reached. Skipping live news queries.")
         return []
         
     api_key = os.getenv("NEWS_API_KEY")
@@ -103,7 +103,7 @@ def run_analysis_in_background(user_tier: str = "Free"):
         gemini_ready = True
     
     if not gemini_ready:
-        print("⚠️ No valid Gemini API key. Using statistical risk calculation from CSV data only.")
+        print("[WARN] No valid Gemini API key. Using statistical risk calculation from CSV data only.")
     pending_items = list(db.suppliers.find({"processing_status": "Pending"}))
 
     # If no Gemini, use local statistical analysis
@@ -369,10 +369,10 @@ Do NOT include any text outside the JSON object. Do NOT use markdown formatting.
                     }
                 )
 
-            print(f"✅ Completed: {s_name} (Score: {hazard_score}, Status: {risk_status})")
+            print(f"[OK] Completed: {s_name} (Score: {hazard_score}, Status: {risk_status})")
 
         except Exception as error_msg:
-            print(f"❌ Analysis failed for {s_name}: {error_msg}")
+            print(f"[ERROR] Analysis failed for {s_name}: {error_msg}")
             db_thread.suppliers.update_one(
                 {"_id": s_id},
                 {"$set": {"processing_status": "Failed", "ai_risk_summary": f"Analysis failed: {str(error_msg)[:200]}"}}
@@ -380,7 +380,7 @@ Do NOT include any text outside the JSON object. Do NOT use markdown formatting.
 
     # === Execute parallel analysis ===
     from concurrent.futures import ThreadPoolExecutor, as_completed
-    print(f"🚀 Starting parallel analysis of {len(pending_items)} suppliers with {MAX_WORKERS} workers...")
+    print(f"[START] Starting parallel analysis of {len(pending_items)} suppliers with {MAX_WORKERS} workers...")
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = {executor.submit(_analyze_single_supplier, s): s["name"] for s in pending_items}
         for future in as_completed(futures):
@@ -388,7 +388,7 @@ Do NOT include any text outside the JSON object. Do NOT use markdown formatting.
             try:
                 future.result()
             except Exception as e:
-                print(f"❌ Thread error for {name}: {e}")
+                print(f"[ERROR] Thread error for {name}: {e}")
 
 
 def _safe_float(*values):
